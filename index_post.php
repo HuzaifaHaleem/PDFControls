@@ -14,6 +14,7 @@ if (!empty($_POST['checkboxcaption'])) {
 }
 if (!empty($_POST['myCombo'])) {
     $comboBox = $_POST['myCombo'];
+    $comboBoxText = $_POST['comboboxtext'];
 }
 
 //print_r($comboBox);exit();
@@ -52,13 +53,14 @@ $textFieldAndCheckBox = array_merge($fieldsInformationTextField, $fieldsInformat
 //for ($i = 0; $i < count($comboBox); $i++) {
 //    $fieldsInformationComboBox[$i]['ID'] = $i + count($textFieldAndCheckBox);
 //    $fieldsInformationComboBox[$i]['FieldType'] = "Combobox";
-//    $fieldsInformationComboBox[$i]['Caption'] = "";
+//    $fieldsInformationComboBox[$i]['Caption'] = $comboBoxText[$i];
 //    $fieldsInformationComboBox[$i]['ListValues'] = explode(",",$comboBox[$i]);
 //    $fieldsInformationComboBox[$i]['ExportValue'] = "";
 //    $fieldsInformationComboBox[$i]['EnteredValue'] = "";
 //}
 //
 //$fieldsInformationCollection = json_encode(array_merge($textFieldAndCheckBox, $fieldsInformationComboBox));
+//$data = $fieldsInformationCollection;
 $data = json_encode($textFieldAndCheckBox);
 
 $url = "http://192.168.2.212/api/DrawFields";

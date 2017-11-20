@@ -1,29 +1,34 @@
 <?php
+$conn = mysqli_connect("localhost", "root", "", "hassan_law");
 
-function CallAPI($method, $url, $data = false) {
-    $curl = curl_init();
+// Check connection
+if (mysqli_connect_errno()) {
+    echo "Failed to connect to MySQL: " . mysqli_connect_error();
+} else {
+    $templateId = 1;
+    $rows = array();
+    $sql = "SELECT * FROM template_information WHERE template_id=" . $templateId . "";
+    $result = mysqli_query($conn, $sql);
 
-    switch ($method) {
-        case "GET":
-            curl_setopt($curl, CURLOPT_HTTPGET, 1);
+    // Fetch all
+    $rows = array();
+
+    while (($row = mysqli_fetch_array($result, MYSQLI_ASSOC))) {
+        $rows[] = $row;
     }
-
-    curl_setopt($curl, CURLOPT_URL, $url);
-    curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
-
-    $result = curl_exec($curl);
-
-    curl_close($curl);
-
-    return $result;
+//        foreach($rows as $key => $value) {
+//            foreach($value as $index => $controlValue) {
+//            print_r($value[$index]);
+//        }
+//        }
+//    print_r($rows);
+//    exit();
 }
-
-$collection = CallAPI("GET", "http://192.168.2.212/api/pdfForms");
 ?>
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Create Dynamic Form Using jQuery </title>
+        <title>Fill Dynamic Form Using jQuery </title>
         <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
         <script src="http://code.jquery.com/ui/1.10.4/jquery-ui.js"></script>
         <link href="css/style.css" rel="stylesheet">
@@ -43,76 +48,62 @@ $collection = CallAPI("GET", "http://192.168.2.212/api/pdfForms");
                             <button id="submitbutton" value="submit" name="submit">Submit</button>
                         </div>-->
             <div class="InputsWrapper1">
-                <form action="index_post.php" method="POST" class="iamform" id="iamform" onsubmit="getSelectValues();">
-                    <!--<div>
-<?php
-$con = mysqli_connect("localhost", "root", "", "aht");
-
-// Check connection
-if (mysqli_connect_errno()) {
-    echo "Failed to connect to MySQL: " . mysqli_connect_error();
-}
-
-$sql = "SELECT id,name,file_path FROM tbl_uploads";
-$result = mysqli_query($con, $sql);
-?>
-                                               <select name='template_name' style="background-color:#fff; padding:5px; border:solid 1px #ddd; width:100%; border-radius:5px;">
-                                                   <option>Select Template Name</option>
-                    <?php
-                    while ($row = mysqli_fetch_array($result)) {
-                        echo "<option value='" . $row['id'] . "'>" . $row['name'] . "</option>";
-                    }
-                    ?>
-                                               </select>
-              
-                  </div>-->
-                    <!--<div id="yourhead">
-                    <div id="your">
-                    <h2 id="yourtitle">Your Form Title</h2>
-                    <h4 id="justclickid">Just Click on Fields on left to start building your form. It's fast, easy & fun.</h4>
-                    </div>
-                    </div>-->
+                <form action="fill_form_post.php" method="POST" class="iamform" id="iamform">
                     <div id="InputsWrapper">
-<?php
-$textBox = '<div>' . '<div class="name box-style" id="InputsWrapper_1' . 1 . '">' .
-        '<input type="text" class="textBoxClass" name="mytext[]" id="field_' . 1 . '"/>' . '<button class="removeclass1">x</button>' .
-        '<button class="addclass1">+</button>' . '<br>' . '</div>' . '</div>';
-
-$checkBox = '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' .
-        '<input type="checkbox" class="checkBoxClass" name="mycheckbox[]" id="field_' . 2 . '" value="CheckBox' . 2 . '"/>' . '<input type="text" style="width:160px;height:25px" name="checkboxcaption[]" id="captionfield_' . '" value=""/>' . '<button class="removeclass3">x</button>' . '<button class="addclass3">+</button>' . '</p>' . '</div>';
-?>
 
                         <?php
-//                        include_once 'response.php';
-                        $response = json_decode($collection);
-                        foreach ($response as $key => $value) {
-                            $count = $key;
-                            $data = (array) $response[$key];
-                            switch ($data['FieldType']) {
-                                case "TextField":
-                                    echo '<div>' . '<div class="name box-style" id="InputsWrapper_1' . 1 . '">' .
-                                    '<input type="text" class="textBoxClass" name="mytext[]" id="' . $key . '"/>' . '<button class="removeclass1">x</button>' .
-                                    '<button class="addclass1">+</button>' . '<br>' .  '</div>'  . '</div>' . '<div id="myDialog" style="margin-left:50px;color:red"><div id="popup'  . $key . '"></div></div>';
-                                    break;
-                                case "CheckBox":
-                                    echo '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' .
-                                    '<input type="checkbox" class="checkBoxClass" name="mycheckbox[]" id="field_' . 2 . '" value="CheckBox' . 2 . '"/>' . '<input type="text" style="width:160px;height:25px" name="checkboxcaption[]" id="' . $key++ . '" value=""/>' . '<button class="removeclass3">x</button>' . '<button class="addclass3">+</button>' . '</p>' . '</div>' .  '<div id="myDialog" style="margin-left:50px;color:red"><div id="popup'  . $count . '"></div></div>';
-                                    break;
-                                case "Combobox":
-                                    echo '<div class="nameCombo box-style" id="InputsWrapper_1' . 1 . '">' .
-                                    '<select class="selectBox" style="width:180px;height:30px" id=' . $key . '>';
-                                    foreach ($data['ListValues'] as $value) {
-                                        echo "<option value=" . $value . ">" . $value . "</option>";
-                                    }
-                                    echo '<input type="hidden"  name="myCombo[]" id="cb' . $key . '" value=""/>' . '<input type="text" class="textBoxClass" name="comboboxtext[]" id="' . $key . '"/>' . '<button class="removeclassCombo">x</button>' .
-                                    '<button class="addclassCombo">+</button>' . '<button class="selectSelect" id=' . $key . '>Remove Option</button>' . '<input type="text" style="width:60px;height:8px" id=ot' . $key . ' />' . '<button class="addOptionButton" id=' . $key . '>Add Option</button>' . '<br>' . '</div>';
-                            }
+                        foreach ($rows as $key => $value) {
+//                            print_r($value['control_type']);
+                                switch ($value['control_type']) {
+                                    case "TextField":
+                                        echo '<div>' . '<div class="name box-style" id="InputsWrapper_1' . 1 . '">' .
+                                        '<input type="text" class="textBoxClass" name="' . $value['caption'] .'" id="' . $key . '"/>' . ' ' . '<label>' . $value['caption'] . '</label>'   .  '<br>' . '</div>' . '</div>';
+                                        break;
+                                    case "CheckBox":
+                                        echo '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' . 
+                                        '<input type="checkbox" class="checkBoxClass" name="' . $value['caption'] .'" id="field_' . 2 . '" value="' . $value['export_value'] .'"/>' . ' ' . '<label>' . $value['caption'] . '</label>'  . '</p>' . '</div>';
+                                        break;
+                                    case "Combobox":
+                                        $list = json_decode($value['list_value']);
+                                        echo '<div class="nameCombo box-style" id="InputsWrapper_1' . 1 . '">' .
+                                        '<select class="selectBox" name="' . $value['caption'] .'" style="width:180px;height:30px" id=' . $key . '>';
+                                        foreach ($list as $option) {
+                                            echo "<option value=" . $option . ">" . $option . "</option>";
+                                        }
+                                        echo  "</select>" . ' ' . '<label>' . $value['caption'] . '</label>' . '<br>' . '</div>';
+                                }
+                        }
+                           if (count($rows) > 0) {
+                            echo '<input type="submit" style="margin-top:20px" id="submitbutton" value="submit" name="submit" />';
                         }
 
-                        if (count($response) > 0) {
-//                           echo '<div id="myDialog"><div id="popup"></div></div>';
-                            echo '<input type="submit" id="submitbutton" value="submit" name="submit" />';
-                        }
+//                        include_once 'response.php';
+//                        foreach ($response as $key => $value) {
+//                            $data = (array) $response[$key];
+//                            switch ($data['FieldType']) {
+//                                case "TextField":
+//                                    echo '<div>' . '<div class="name box-style" id="InputsWrapper_1' . 1 . '">' .
+//                                    '<input type="text" class="textBoxClass" name="mytext[]" id="' . $key . '"/>' . '<button class="removeclass1">x</button>' .
+//                                    '<button class="addclass1">+</button>' . '<br>' . '</div>' . '</div>';
+//                                    break;
+//                                case "CheckBox":
+//                                    echo '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' .
+//                                    '<input type="checkbox" class="checkBoxClass" name="mycheckbox[]" id="field_' . 2 . '" value="CheckBox' . 2 . '"/>' . '<input type="text" style="width:160px;height:25px" name="checkboxcaption[]" id="' . $key++ . '" value=""/>' . '<button class="removeclass3">x</button>' . '<button class="addclass3">+</button>' . '</p>' . '</div>';
+//                                    break;
+//                                case "Combobox":
+//                                    echo '<div class="nameCombo box-style" id="InputsWrapper_1' . 1 . '">' .
+//                                    '<select class="selectBox" style="width:180px;height:30px" id=' . $key . '>';
+//                                    foreach ($data['ListValues'] as $value) {
+//                                        echo "<option value=" . $value . ">" . $value . "</option>";
+//                                    }
+//                                    echo '<input type="hidden"  name="myCombo[]" id="cb' . $key . '" value=""/>' . '<input type="text" class="textBoxClass" name="comboboxtext[]" id="' . $key . '"/>' . '<button class="removeclassCombo">x</button>' .
+//                                    '<button class="addclassCombo">+</button>' . '<button class="selectSelect" id=' . $key . '>Remove Option</button>' . '<input type="text" style="width:60px;height:8px" id=ot' . $key . ' />' . '<button class="addOptionButton" id=' . $key . '>Add Option</button>' . '<br>' . '</div>';
+//                            }
+//                        }
+
+//                        if (count($response) > 0) {
+//                            echo '<input type="submit" id="submitbutton" value="submit" name="submit" />';
+//                        }
                         ?>
 
                     </div>
@@ -134,7 +125,6 @@ $checkBox = '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . 
     $('input').blur(function () {
         var minput = $(this).val();
         var minputid = this.id;
-        var node = $(this);
         var check = false;
         $('#InputsWrapper input[type=text]').each(function () {
             if ($(this).val() != "" && minputid != this.id) {
@@ -145,16 +135,8 @@ $checkBox = '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . 
 
 
         });
-
         if (check == true) {
-//        alert("Caption " + minput + " is repeated. Caption name must be unique.");
-            jQuery("#" + "popup" + this.id).text('"'+ minput + '"' + " can not repeat this caption again.");
-            $("#" + "popup" + this.id).show().delay(5000).queue(function (n) {
-                $(this).hide();
-                n();
-            });
-            $(node).focus();
-//            $(node).previous.previous.after('<span  class="errors">fshfsdlkfh</span>')
+            alert("Caption " + minput + " is repeated. Caption name must be unique.");
         }
 
     });
@@ -586,7 +568,7 @@ foreach ($response as $key => $value) {
     }
     #checkboxbutton{
         border:4px solid #9AB7F5;
-        width:200px;
+        width:350px;
         height:50px;
         background:#efefef url(../images/tab-bg.png) repeat-x;
         margin-bottom:10px;
@@ -664,7 +646,7 @@ foreach ($response as $key => $value) {
         margin-bottom:10px;
         margin-top:15px;
         margin-left:10px;
-        width:300px;
+        width:350px;
         height:35px;
         border-radius:5px;
         border:1px solid blue;
@@ -676,7 +658,7 @@ foreach ($response as $key => $value) {
         margin-bottom:10px;
         margin-top:15px;
         margin-left:10px;
-        width:400px;
+        width:350px;
         height:35px;
         border-radius:5px;
         border:1px solid blue;
@@ -727,7 +709,7 @@ foreach ($response as $key => $value) {
         margin-bottom: 10px;
         margin-top: 15px;
         margin-left: 10px;
-        width: 300px;
+        width: 350px;
         height: 35px;
         border-radius: 5px;
         border: 1px solid blue;
