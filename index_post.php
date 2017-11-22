@@ -108,15 +108,15 @@ if (mysqli_connect_errno()) {
         switch ($data['FieldType']) {
             case "TextField":
                 $sql = "INSERT INTO template_information (template_id, template_path,control_id,control_type,caption)
-                VALUES ('1', 'xyz/folder','$controlId','$controlType','$caption')";
+                VALUES ('3', 'xyz/folder','$controlId','$controlType','$caption')";
                 break;
             case "CheckBox":
                 $sql = "INSERT INTO template_information (template_id, template_path,control_id,control_type,caption,export_value)
-                VALUES ('1', 'xyz/folder','$controlId','$controlType','$caption','$exportValue')";
+                VALUES ('3', 'xyz/folder','$controlId','$controlType','$caption','$exportValue')";
                 break;
             case "Combobox":
                 $sql = "INSERT INTO template_information (template_id, template_path,control_id,control_type,caption,list_value)
-                VALUES ('1', 'xyz/folder','$controlId','$controlType','$caption','$listValue')";
+                VALUES ('3', 'xyz/folder','$controlId','$controlType','$caption','$listValue')";
                 break;
         }
 //        $sql = "INSERT INTO template_information (template_id, template_path,control_id,template_id,control_type,caption,export_value)

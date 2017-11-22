@@ -120,7 +120,7 @@ $checkBox = '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . 
             </div>
             <!-- Display DPF Here -->
             <div class="PDFViewer">
-                <object data="2.pdf" type="application/pdf" width="650" height="900">
+                <object data="fw9.pdf" type="application/pdf" width="650" height="900">
                     alt : <a href="#">Unable to display PDF preview.</a>
                 </object>
             </div>
