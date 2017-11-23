@@ -6,7 +6,7 @@ if (mysqli_connect_errno()) {
     echo "Failed to connect to MySQL: " . mysqli_connect_error();
 } else {
     $templateId = 1;
-    $rows = array();
+//    $rows = array();
     $sql = "SELECT * FROM template_information WHERE template_id=" . $templateId . "";
     $result = mysqli_query($conn, $sql);
 
@@ -16,13 +16,27 @@ if (mysqli_connect_errno()) {
     while (($row = mysqli_fetch_array($result, MYSQLI_ASSOC))) {
         $rows[] = $row;
     }
-//        foreach($rows as $key => $value) {
-//            foreach($value as $index => $controlValue) {
-//            print_r($value[$index]);
-//        }
-//        }
-//    print_r($rows);
-//    exit();
+}
+
+//Get saved data for a template
+// Check connection
+if (mysqli_connect_errno()) {
+    echo "Failed to connect to MySQL: " . mysqli_connect_error();
+} else {
+    $templateId = 3;
+    $userId = 1;
+//    $rows = array();
+    $sql = "SELECT * FROM template_data WHERE template_id=" . $templateId . " AND user_id=" . $userId . "";
+    $result = mysqli_query($conn, $sql);
+
+    // Fetch all
+    $templateData = array();
+
+    while (($row = mysqli_fetch_array($result, MYSQLI_ASSOC))) {
+        $templateData[] = $row;
+    }
+    $checkBoxes = array_column($templateData,'control_name');
+//    print_r($templateData);
 }
 ?>
 <!DOCTYPE html>
@@ -54,26 +68,34 @@ if (mysqli_connect_errno()) {
                         <?php
                         foreach ($rows as $key => $value) {
 //                            print_r($value['control_type']);
-                                switch ($value['control_type']) {
-                                    case "TextField":
-                                        echo '<div>' . '<div class="name box-style" id="InputsWrapper_1' . 1 . '">' .
-                                        '<input type="text" class="textBoxClass" name="' . $value['caption'] .'" id="' . $key . '"/>' . ' ' . '<label>' . $value['caption'] . '</label>'   .  '<br>' . '</div>' . '</div>';
-                                        break;
-                                    case "CheckBox":
-                                        echo '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' . 
-                                        '<input type="checkbox" class="checkBoxClass" name="' . $value['caption'] .'" id="field_' . 2 . '" value="' . $value['export_value'] .'"/>' . ' ' . '<label>' . $value['caption'] . '</label>'  . '</p>' . '</div>';
-                                        break;
-                                    case "Combobox":
-                                        $list = json_decode($value['list_value']);
-                                        echo '<div class="nameCombo box-style" id="InputsWrapper_1' . 1 . '">' .
-                                        '<select class="selectBox" name="' . $value['caption'] .'" style="width:180px;height:30px" id=' . $key . '>';
-                                        foreach ($list as $option) {
-                                            echo "<option value=" . $option . ">" . $option . "</option>";
-                                        }
-                                        echo  "</select>" . ' ' . '<label>' . $value['caption'] . '</label>' . '<br>' . '</div>';
-                                }
+                            switch ($value['control_type']) {
+                                case "TextField":
+                                    $textFieldText = ((!empty($templateData[$key]['value']))?$templateData[$key]['value']:"");
+                                    echo '<div>' . '<div class="name box-style" id="InputsWrapper_1' . 1 . '">' .
+                                    '<input type="text" class="textBoxClass" value="' . $textFieldText . '" name="' . $value['caption'] . '" id="' . $key . '"/>' . ' ' . '<label>' . $value['caption'] . '</label>' . '<br>' . '</div>' . '</div>';
+                                    break;
+                                case "CheckBox":
+                                    $check = ((in_array($value['caption'],$checkBoxes))? 1 : 0);
+                                    if($check == 1) {
+                                        echo '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' .
+                                    '<input type="checkbox" class="checkBoxClass"  checked name="' . $value['caption'] . '" id="field_' . 2 . '" value="' . $value['export_value'] . '"/>' . ' ' . '<label>' . $value['caption'] . '</label>' . '</p>' . '</div>';
+                                    } else {
+                                        echo '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' .
+                                    '<input type="checkbox" class="checkBoxClass" name="' . $value['caption'] . '" id="field_' . 2 . '" value="' . $value['export_value'] . '"/>' . ' ' . '<label>' . $value['caption'] . '</label>' . '</p>' . '</div>';
+                                    }
+                                    
+                                    break;
+                                case "Combobox":
+                                    $list = json_decode($value['list_value']);
+                                    echo '<div class="nameCombo box-style" id="InputsWrapper_1' . 1 . '">' .
+                                    '<select class="selectBox" name="' . $value['caption'] . '" style="width:180px;height:30px" id=' . $key . '>';
+                                    foreach ($list as $option) {
+                                        echo "<option value=" . $option . ">" . $option . "</option>";
+                                    }
+                                    echo "</select>" . ' ' . '<label>' . $value['caption'] . '</label>' . '<br>' . '</div>';
+                            }
                         }
-                           if (count($rows) > 0) {
+                        if (count($rows) > 0) {
                             echo '<input type="submit" style="margin-top:20px" id="submitbutton" value="submit" name="submit" />';
                         }
 
@@ -100,7 +122,6 @@ if (mysqli_connect_errno()) {
 //                                    '<button class="addclassCombo">+</button>' . '<button class="selectSelect" id=' . $key . '>Remove Option</button>' . '<input type="text" style="width:60px;height:8px" id=ot' . $key . ' />' . '<button class="addOptionButton" id=' . $key . '>Add Option</button>' . '<br>' . '</div>';
 //                            }
 //                        }
-
 //                        if (count($response) > 0) {
 //                            echo '<input type="submit" id="submitbutton" value="submit" name="submit" />';
 //                        }
@@ -121,6 +142,11 @@ if (mysqli_connect_errno()) {
 </html>
 
 <script>
+    $(document).ready(function () {
+
+        $('input[name="name"]').val('Test Value');
+    });
+
     //Caption repetition check
     $('input').blur(function () {
         var minput = $(this).val();

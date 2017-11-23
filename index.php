@@ -45,17 +45,17 @@ $collection = CallAPI("GET", "http://192.168.2.212/api/pdfForms");
             <div class="InputsWrapper1">
                 <form action="index_post.php" method="POST" class="iamform" id="iamform" onsubmit="getSelectValues();">
                     <!--<div>
-<?php
-$con = mysqli_connect("localhost", "root", "", "aht");
+                    <?php
+                    $con = mysqli_connect("localhost", "root", "", "aht");
 
 // Check connection
-if (mysqli_connect_errno()) {
-    echo "Failed to connect to MySQL: " . mysqli_connect_error();
-}
+                    if (mysqli_connect_errno()) {
+                        echo "Failed to connect to MySQL: " . mysqli_connect_error();
+                    }
 
-$sql = "SELECT id,name,file_path FROM tbl_uploads";
-$result = mysqli_query($con, $sql);
-?>
+                    $sql = "SELECT id,name,file_path FROM tbl_uploads";
+                    $result = mysqli_query($con, $sql);
+                    ?>
                                                <select name='template_name' style="background-color:#fff; padding:5px; border:solid 1px #ddd; width:100%; border-radius:5px;">
                                                    <option>Select Template Name</option>
                     <?php
@@ -73,14 +73,14 @@ $result = mysqli_query($con, $sql);
                     </div>
                     </div>-->
                     <div id="InputsWrapper">
-<?php
-$textBox = '<div>' . '<div class="name box-style" id="InputsWrapper_1' . 1 . '">' .
-        '<input type="text" class="textBoxClass" name="mytext[]" id="field_' . 1 . '"/>' . '<button class="removeclass1">x</button>' .
-        '<button class="addclass1">+</button>' . '<br>' . '</div>' . '</div>';
+                        <?php
+                        $textBox = '<div>' . '<div class="name box-style" id="InputsWrapper_1' . 1 . '">' .
+                                '<input type="text" class="textBoxClass" name="mytext[]" id="field_' . 1 . '"/>' . '<button class="removeclass1">x</button>' .
+                                '<button class="addclass1">+</button>' . '<br>' . '</div>' . '</div>';
 
-$checkBox = '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' .
-        '<input type="checkbox" class="checkBoxClass" name="mycheckbox[]" id="field_' . 2 . '" value="CheckBox' . 2 . '"/>' . '<input type="text" style="width:160px;height:25px" name="checkboxcaption[]" id="captionfield_' . '" value=""/>' . '<button class="removeclass3">x</button>' . '<button class="addclass3">+</button>' . '</p>' . '</div>';
-?>
+                        $checkBox = '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' .
+                                '<input type="checkbox" class="checkBoxClass" name="mycheckbox[]" id="field_' . 2 . '" value="CheckBox' . 2 . '"/>' . '<input type="text" style="width:160px;height:25px" name="checkboxcaption[]" id="captionfield_' . '" value=""/>' . '<button class="removeclass3">x</button>' . '<button class="addclass3">+</button>' . '</p>' . '</div>';
+                        ?>
 
                         <?php
 //                        include_once 'response.php';
@@ -92,11 +92,11 @@ $checkBox = '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . 
                                 case "TextField":
                                     echo '<div>' . '<div class="name box-style" id="InputsWrapper_1' . 1 . '">' .
                                     '<input type="text" class="textBoxClass" name="mytext[]" id="' . $key . '"/>' . '<button class="removeclass1">x</button>' .
-                                    '<button class="addclass1">+</button>' . '<br>' .  '</div>'  . '</div>' . '<div id="myDialog" style="margin-left:50px;color:red"><div id="popup'  . $key . '"></div></div>';
+                                    '<button class="addclass1">+</button>' . '<br>' . '</div>' . '</div>' . '<div id="myDialog" style="margin-left:50px;color:red"><div id="popup' . $key . '"></div></div>';
                                     break;
                                 case "CheckBox":
                                     echo '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' .
-                                    '<input type="checkbox" class="checkBoxClass" name="mycheckbox[]" id="field_' . 2 . '" value="CheckBox' . 2 . '"/>' . '<input type="text" style="width:160px;height:25px" name="checkboxcaption[]" id="' . $key++ . '" value=""/>' . '<button class="removeclass3">x</button>' . '<button class="addclass3">+</button>' . '</p>' . '</div>' .  '<div id="myDialog" style="margin-left:50px;color:red"><div id="popup'  . $count . '"></div></div>';
+                                    '<input type="checkbox" class="checkBoxClass" name="mycheckbox[]" id="field_' . 2 . '" value="CheckBox' . 2 . '"/>' . '<input type="text" style="width:160px;height:25px" name="checkboxcaption[]" id="' . $key++ . '" value=""/>' . '<button class="removeclass3">x</button>' . '<button class="addclass3">+</button>' . '</p>' . '</div>' . '<div id="myDialog" style="margin-left:50px;color:red"><div id="popup' . $count . '"></div></div>';
                                     break;
                                 case "Combobox":
                                     echo '<div class="nameCombo box-style" id="InputsWrapper_1' . 1 . '">' .
@@ -130,12 +130,13 @@ $checkBox = '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . 
 </html>
 
 <script>
-    //Caption repetition check
-    $('input').blur(function () {
-        var minput = $(this).val();
+    $( document ).on( "blur", "input", function() {
+//  console.log('Imran');
+var minput = $(this).val();
         var minputid = this.id;
         var node = $(this);
         var check = false;
+        
         $('#InputsWrapper input[type=text]').each(function () {
             if ($(this).val() != "" && minputid != this.id) {
                 if (minput == $(this).val()) {
@@ -148,16 +149,45 @@ $checkBox = '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . 
 
         if (check == true) {
 //        alert("Caption " + minput + " is repeated. Caption name must be unique.");
-            jQuery("#" + "popup" + this.id).text('"'+ minput + '"' + " can not repeat this caption again.");
+            jQuery("#" + "popup" + this.id).text('"' + minput + '"' + " can not repeat this caption again.");
             $("#" + "popup" + this.id).show().delay(5000).queue(function (n) {
                 $(this).hide();
                 n();
             });
             $(node).focus();
-//            $(node).previous.previous.after('<span  class="errors">fshfsdlkfh</span>')
+            $(node).previous.previous.after('<span  class="errors">fshfsdlkfh</span>')
         }
 
-    });
+});
+    //Caption repetition check
+//    $('input').blur(function () {
+//        var minput = $(this).val();
+//        var minputid = this.id;
+//        var node = $(this);
+//        var check = false;
+//        
+//        $('#InputsWrapper input[type=text]').each(function () {
+//            if ($(this).val() != "" && minputid != this.id) {
+//                if (minput == $(this).val()) {
+//                    check = true;
+//                }
+//            }
+//
+//
+//        });
+//
+//        if (check == true) {
+////        alert("Caption " + minput + " is repeated. Caption name must be unique.");
+//            jQuery("#" + "popup" + this.id).text('"' + minput + '"' + " can not repeat this caption again.");
+//            $("#" + "popup" + this.id).show().delay(5000).queue(function (n) {
+//                $(this).hide();
+//                n();
+//            });
+//            $(node).focus();
+//            $(node).previous.previous.after('<span  class="errors">fshfsdlkfh</span>')
+//        }
+//
+//    });
     $("body").on("click", ".selectSelect", function (event) {
         event.preventDefault();
         $('#' + this.id + ' option:selected').remove();
@@ -318,11 +348,15 @@ foreach ($response as $key => $value) {
             return false;
         });
         $("body").on("click", ".addclass1", function () {
+            var numItemsSelect = $('.selectBox').length;
+            var numItemsText = $('.textBoxClass').length;
+            var numItemsCheck = $('.checkBoxClass').length;
+            var totalFieldsGenerated = numItemsSelect + numItemsText + numItemsCheck;
             counttext++;
             nameFieldCount++; // To Add More Name Fields
-            $(this).parent('div').parent('div').append('<div class="name">' + '<input type="text" name="mytext[]" id="field_' +
-                    nameFieldCount + '" />' + '<button class="removeclass1">x</button>' + '<button class="addclass1">+</button>' + '<br>' +
-                    '</div>');
+            $(this).parent('div').parent('div').append('<div class="name box-style" id="InputsWrapper_11">' + '<input type="text" class="textBoxClass" name="mytext[]" id="' +
+                    totalFieldsGenerated + '" />' + '<button class="removeclass1">x</button>' + '<button class="addclass1">+</button>' + '<br>' +
+                    '</div>' + '<div id="myDialog" style="margin-left:50px;color:red"><div id="popup' + totalFieldsGenerated + '"></div></div>');
             x++;
             return false;
         });

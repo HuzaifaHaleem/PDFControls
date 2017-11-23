@@ -35,19 +35,32 @@ $url = "http://192.168.2.212/api/GetFilledPdf";
     $result = curl_exec($curl);
     curl_close($curl);
     echo "Template written successfully";
-//    print_r($result);
+}
 
-//    $file = "https://www.google.com.pk/url?sa=t&rct=j&q=&esrc=s&source=web&cd=2&cad=rja&uact=8&ved=0ahUKEwjplYqxk83XAhWQpKQKHTw3BlYQFgguMAE&url=http%3A%2F%2Fwww.axmag.com%2Fdownload%2Fpdfurl-guide.pdf&usg=AOvVaw3g6Rtx34k5lNisnuOCwVkK";
-//
-//    echo '<script type="text/javascript"> window.open("' . $file . '"); 
-//            setTimeout(function(){window.location="fill_form.php"} , 10);
-//            </script>';
-} //- the missing closing brace
-//$file_url = $result;
-//header('Content-Type: application/pdf');
-//header("Content-Transfer-Encoding: Binary");
-//header("Content-disposition: attachment; filename=".$file_url);
-//readfile($file_url);
-//}
+$con = mysqli_connect("localhost", "root", "", "hassan_law");
+
+// Check connection
+if (mysqli_connect_errno()) {
+    echo "Failed to connect to MySQL: " . mysqli_connect_error();
+} else {
+
+    foreach ($fieldsCollection as $key => $value) {
+        $captionAndValueArray = $fieldsCollection[$key];
+        $caption = $captionAndValueArray['Caption'];
+        $value = $captionAndValueArray['Value'];
+        $templateId = 3;
+        $userId = 1;
+
+
+        $sql = "INSERT INTO template_data (user_id,template_id, control_name,value)
+                VALUES ('$userId', '$templateId','$caption','$value')";
+
+        if ($con->query($sql) === TRUE) {
+            echo "New record created successfully";
+        } else {
+            echo "Error: " . $sql . "<br>" . $con->error;
+        }
+    }
+}
 ?>
 
