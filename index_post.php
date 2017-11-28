@@ -50,21 +50,21 @@ for ($i = 0; $i < count($checkboxcaption); $i++) {
 $textFieldAndCheckBox = array_merge($fieldsInformationTextField, $fieldsInformationCheckBox);
 
 //ComboBox collection
-//for ($i = 0; $i < count($comboBox); $i++) {
-//    $fieldsInformationComboBox[$i]['ID'] = $i + count($textFieldAndCheckBox);
-//    $fieldsInformationComboBox[$i]['FieldType'] = "Combobox";
-//    $fieldsInformationComboBox[$i]['Caption'] = $comboBoxText[$i];
-//    $fieldsInformationComboBox[$i]['ListValues'] = explode(",",$comboBox[$i]);
-//    $fieldsInformationComboBox[$i]['ExportValue'] = "";
-//    $fieldsInformationComboBox[$i]['EnteredValue'] = "";
-//}
-//
-//$fieldsInformationCollection = json_encode(array_merge($textFieldAndCheckBox, $fieldsInformationComboBox));
-//$data = $fieldsInformationCollection;
-$data = json_encode($textFieldAndCheckBox);
+for ($i = 0; $i < count($comboBox); $i++) {
+    $fieldsInformationComboBox[$i]['ID'] = $i + count($textFieldAndCheckBox);
+    $fieldsInformationComboBox[$i]['FieldType'] = "Combobox";
+    $fieldsInformationComboBox[$i]['Caption'] = $comboBoxText[$i];
+    $fieldsInformationComboBox[$i]['ListValues'] = explode(",", $comboBox[$i]);
+    $fieldsInformationComboBox[$i]['ExportValue'] = "";
+    $fieldsInformationComboBox[$i]['EnteredValue'] = "";
+}
 
-$url = "http://192.168.2.212/api/DrawFields";
-{
+$fieldsInformationCollection = json_encode(array_merge($textFieldAndCheckBox, $fieldsInformationComboBox));
+//print_r($fieldsInformationCollection);exit();
+$data = $fieldsInformationCollection;
+//$data = json_encode($fieldsInformationCollection);
+
+$url = "http://192.168.2.212/api/DrawFields"; {
     $curl = curl_init();
 
     switch ("POST") {
@@ -104,24 +104,23 @@ if (mysqli_connect_errno()) {
         $caption = $data['Caption'];
         $exportValue = $data['ExportValue'];
         $listValue = json_encode($data['ListValues']);
-        
+
         switch ($data['FieldType']) {
             case "TextField":
                 $sql = "INSERT INTO template_information (template_id, template_path,control_id,control_type,caption)
-                VALUES ('3', 'xyz/folder','$controlId','$controlType','$caption')";
+                VALUES ('5', 'xyz/folder','$controlId','$controlType','$caption')";
                 break;
             case "CheckBox":
                 $sql = "INSERT INTO template_information (template_id, template_path,control_id,control_type,caption,export_value)
-                VALUES ('3', 'xyz/folder','$controlId','$controlType','$caption','$exportValue')";
+                VALUES ('5', 'xyz/folder','$controlId','$controlType','$caption','$exportValue')";
                 break;
             case "Combobox":
                 $sql = "INSERT INTO template_information (template_id, template_path,control_id,control_type,caption,list_value)
-                VALUES ('3', 'xyz/folder','$controlId','$controlType','$caption','$listValue')";
+                VALUES ('5', 'xyz/folder','$controlId','$controlType','$caption','$listValue')";
                 break;
         }
 //        $sql = "INSERT INTO template_information (template_id, template_path,control_id,template_id,control_type,caption,export_value)
 //                VALUES ('text', '$mytext[$i]','$mytext[$x]',$id)";
-
 //        $textbox[] = '<input name="box" type = "text" />';
 
         if ($con->query($sql) === TRUE) {
