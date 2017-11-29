@@ -75,7 +75,7 @@ $collection = CallAPI("GET", "http://192.168.2.212/api/pdfForms");
                     <div id="InputsWrapper">
                         <?php
                         $textBox = '<div>' . '<div class="name box-style" id="InputsWrapper_1' . 1 . '">' .
-                                '<input type="text" class="textBoxClass" name="mytext[]" id="field_' . 1 . '"/>' . '<button class="removeclass1">x</button>' .
+                                '<input type="text" class="textBoxClass" name="mytext[]" onkeyup="showHint(this)" id="field_' . 1 . '"/>' . '<button class="removeclass1">x</button>' .
                                 '<button class="addclass1">+</button>' . '<br>' . '</div>' . '</div>';
 
                         $checkBox = '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' .
@@ -91,21 +91,24 @@ $collection = CallAPI("GET", "http://192.168.2.212/api/pdfForms");
                             switch ($data['FieldType']) {
                                 case "TextField":
                                     echo '<div>' . '<div class="name box-style" id="InputsWrapper_1' . 1 . '">' .
-                                    '<input type="text" class="textBoxClass" name="mytext[]" id="' . $key . '"/>' . '<button class="removeclass1">x</button>' .
+                                    '<input type="text" class="textBoxClass" onkeyup="showHint(this)" name="mytext[]" id="' . $key . '"/>' . '<button class="removeclass1">x</button>' .
                                     '<button class="addclass1">+</button>' . '<br>' . '</div>' . '</div>' . '<div id="myDialog" style="margin-left:50px;color:red"><div id="popup' . $key . '"></div></div>';
+                                    echo '<span style="margin-left:50px;color:red" id="notification' . $key . '"></span>';
                                     break;
                                 case "CheckBox":
                                     echo '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' .
-                                    '<input type="checkbox" class="checkBoxClass" name="mycheckbox[]" id="field_' . 2 . '" value="CheckBox' . 2 . '"/>' . '<input type="text" style="width:160px;height:25px" name="checkboxcaption[]" id="' . $key++ . '" value=""/>' . '<button class="removeclass3">x</button>' . '<button class="addclass3">+</button>' . '</p>' . '</div>' . '<div id="myDialog" style="margin-left:50px;color:red"><div id="popup' . $count . '"></div></div>';
+                                    '<input type="checkbox" class="checkBoxClass" name="mycheckbox[]" id="field_' . 2 . '" value="CheckBox' . 2 . '"/>' . '<input type="text" onkeyup="showHint(this)" style="width:160px;height:25px" name="checkboxcaption[]" id="' . $key++ . '" value=""/>' . '<button class="removeclass3">x</button>' . '<button class="addclass3">+</button>' . '</p>' . '</div>' . '<div id="myDialog" style="margin-left:50px;color:red"><div id="popup' . $count . '"></div></div>';
+                                    echo '<span style="margin-left:50px;color:red" id="notification' . $count . '"></span>';
                                     break;
                                 case "Combobox":
                                     echo '<div class="nameCombo box-style" id="InputsWrapper_1' . 1 . '">' .
-                                    '<select class="selectBox" style="width:180px;height:30px" id=' . $key . '>';
+                                    '<select class="selectBox" style="width:180px;height:30px" id=' . $count . '>';
                                     foreach ($data['ListValues'] as $value) {
                                         echo "<option value=" . $value . ">" . $value . "</option>";
                                     }
-                                    echo '<input type="hidden"  name="myCombo[]" id="cb' . $key . '" value=""/>' . '<input type="text" class="textBoxClass" name="comboboxtext[]" id="' . $key . '"/>' . '<button class="removeclassCombo">x</button>' .
+                                    echo '<input type="hidden"  name="myCombo[]" id="cb' . $key . '" value=""/>' . '<input type="text" onkeyup="showHint(this)" class="textBoxClass" name="comboboxtext[]" id="' . $key . '"/>' . '<button class="removeclassCombo">x</button>' .
                                     '<button class="addclassCombo">+</button>' . '<button class="selectSelect" id=' . $key . '>Remove Option</button>' . '<input type="text" style="width:60px;height:8px" id=ot' . $key . ' />' . '<button class="addOptionButton" id=' . $key . '>Add Option</button>' . '<br>' . '</div>';
+                                    echo '<span style="margin-left:50px;color:red" id="notification' . $count . '"></span>';
                             }
                         }
 
@@ -130,13 +133,30 @@ $collection = CallAPI("GET", "http://192.168.2.212/api/pdfForms");
 </html>
 
 <script>
-    $( document ).on( "blur", "input", function() {
+    function showHint(str) {
+        var xhttp;
+        var fieldValue = str.value;
+        if (fieldValue.length == 0) {
+            document.getElementById("notification" + str.id).innerHTML = "";
+            return;
+        }
+        xhttp = new XMLHttpRequest();
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                document.getElementById("notification" + str.id).innerHTML = this.responseText;
+                $("notification" + str.id).val('some value');
+            }
+        };
+        xhttp.open("GET", "gethint.php?q=" + fieldValue, true);
+        xhttp.send();
+    }
+    $(document).on("blur", "input", function () {
 //  console.log('Imran');
-var minput = $(this).val();
+        var minput = $(this).val();
         var minputid = this.id;
         var node = $(this);
         var check = false;
-        
+
         $('#InputsWrapper input[type=text]').each(function () {
             if ($(this).val() != "" && minputid != this.id) {
                 if (minput == $(this).val()) {
@@ -158,7 +178,7 @@ var minput = $(this).val();
             $(node).previous.previous.after('<span  class="errors">fshfsdlkfh</span>')
         }
 
-});
+    });
     //Caption repetition check
 //    $('input').blur(function () {
 //        var minput = $(this).val();
@@ -354,9 +374,9 @@ foreach ($response as $key => $value) {
             var totalFieldsGenerated = numItemsSelect + numItemsText + numItemsCheck;
             counttext++;
             nameFieldCount++; // To Add More Name Fields
-            $(this).parent('div').parent('div').append('<div class="name box-style" id="InputsWrapper_11">' + '<input type="text" class="textBoxClass" name="mytext[]" id="' +
+            $(this).parent('div').parent('div').append('<div class="name box-style" id="InputsWrapper_11">' + '<input type="text" onkeyup="showHint(this)" class="textBoxClass" name="mytext[]" id="' +
                     totalFieldsGenerated + '" />' + '<button class="removeclass1">x</button>' + '<button class="addclass1">+</button>' + '<br>' +
-                    '</div>' + '<div id="myDialog" style="margin-left:50px;color:red"><div id="popup' + totalFieldsGenerated + '"></div></div>');
+                    '</div>' + '<div id="myDialog" style="margin-left:50px;color:red"><div id="popup' + totalFieldsGenerated + '"></div></div>' + '<span style="margin-left:50px;color:red" id="notification' + totalFieldsGenerated + '"></span>');
             x++;
             return false;
         });
@@ -377,8 +397,8 @@ foreach ($response as $key => $value) {
             //alert(total);
             $(this).parent('div').after('<div class="nameCombo box-style" id="InputsWrapper_1' + 1 + '">' +
                     '<select class="selectBox" style="width:180px;height:30px" id=' + total + '>' + '<option value="' + total + '"' + '>' + total + '</option>' +
-                    '<input type="hidden"  name="myCombo[]" id="cb' + total + '" value=""/>' + '<input type="text" class="textBoxClass" name="comboboxtext[]" id="' + total + '"/>' + '<button class="removeclassCombo">x</button>' +
-                    '<button class="addclassCombo">+</button>' + '<button class="selectSelect" id=' + total + '>Remove Option</button>' + '<input type="text" style="width:60px;height:8px" id=ot' + total + ' />' + '<button class="addOptionButton" id=' + total + '>Add Option</button>' + '<br>' + '</div>');
+                    '<input type="hidden"  name="myCombo[]" id="cb' + total + '" value=""/>' + '<input type="text" onkeyup="showHint(this)" class="textBoxClass" name="comboboxtext[]" id="' + total + '"/>' + '<button class="removeclassCombo">x</button>' +
+                    '<button class="addclassCombo">+</button>' + '<button class="selectSelect" id=' + total + '>Remove Option</button>' + '<input type="text" style="width:60px;height:8px" id=ot' + total + ' />' + '<button class="addOptionButton" id=' + total + '>Add Option</button>' + '<br>' + '</div>' + '<span style="margin-left:50px;color:red" id="notification' + total + '"></span>');
             x++;
             return false;
         });
@@ -443,8 +463,8 @@ foreach ($response as $key => $value) {
             counttext++;
             checkboxFieldCount++; // To Add More Check-Box
             $(this).parent('p').parent('div').append('<p class="checkbox_child" id="para' + checkbox_sub_para_Count + '">' +
-                    '<input type="checkbox" name="mycheckbox[]" id="field_' + checkboxFieldCount + '" value="CheckBox' + checkboxFieldCount + '"/>' + '<input type="text" name="checkboxcaption[]" id="captionfield_' + '" value=""/>' +
-                    '<button class="removeclass3">x</button>' + '<button class="addclass3">+</button>' + '</p>');
+                    '<input type="checkbox" name="mycheckbox[]" id="field_' + checkboxFieldCount + '" value="CheckBox' + checkboxFieldCount + '"/>' + '<input type="text" onkeyup="showHint(this)" name="checkboxcaption[]" id="captionfield_' + '" value=""/>' +
+                    '<button class="removeclass3">x</button>' + '<button class="addclass3">+</button>' + '</p>' + '<span style="margin-left:50px;color:red" id="notification' + checkboxFieldCount + '"></span>');
             x++;
             return false;
         });
