@@ -25,8 +25,9 @@ if (mysqli_connect_errno()) {
 } else {
     $templateId = 5;
     $userId = 1;
-//    $rows = array();
-    $sql = "SELECT * FROM template_data WHERE template_id=" . $templateId . " AND user_id=" . $userId . "";
+
+    $sql = "select * from template_data where (control_name IN (select caption from template_information where user_id=" . $userId . " and template_id=" . $templateId . ") and template_id=" . $templateId . " and user_id=" . $userId . ")";
+
     $result = mysqli_query($conn, $sql);
 
     // Fetch all
@@ -35,9 +36,39 @@ if (mysqli_connect_errno()) {
     while (($row = mysqli_fetch_array($result, MYSQLI_ASSOC))) {
         $templateData[] = $row;
     }
+
     $checkBoxes = array_column($templateData, 'control_name');
     $controlValues = array_column($templateData, 'value');
-//    print_r($checkBoxes);
+}
+//Get key value pairs added on add client
+
+if (mysqli_connect_errno()) {
+    echo "Failed to connect to MySQL: " . mysqli_connect_error();
+} else {
+    $userId = 1;
+
+    $sqlQuery = "select  * from template_data where user_id=" . $userId . " and template_id=" . 0;
+    $resultSet = mysqli_query($conn, $sqlQuery);
+
+    // Fetch all
+    $templateDataFromClientSide = array();
+
+    while (($row = mysqli_fetch_array($resultSet, MYSQLI_ASSOC))) {
+        $templateDataFromClientSide[] = $row;
+    }
+
+    if (count($templateDataFromClientSide) > 0) {
+        $indexes = array_column($templateDataFromClientSide, 'control_name');
+
+        foreach ($templateDataFromClientSide as $key => $value) {
+            $response = array_search($value['control_name'], $checkBoxes);
+            if ($response != false || $response == 0) {
+                $templateData[$response]['value'] = $value['value'];
+            }
+        }
+        $checkBoxes = array_column($templateData, 'control_name');
+        $controlValues = array_column($templateData, 'value');
+    }
 }
 ?>
 <!DOCTYPE html>
@@ -66,46 +97,46 @@ if (mysqli_connect_errno()) {
                 <form action="fill_form_post.php" method="POST" class="iamform" id="iamform">
                     <div id="InputsWrapper">
 
-                        <?php
-                        foreach ($rows as $key => $value) {
+<?php
+foreach ($rows as $key => $value) {
 //                            print_r($value['control_type']);
-                            switch ($value['control_type']) {
-                                case "TextField":
-                                    $textFieldText = ((!empty($templateData[$key]['value']) && $value['caption'] == $templateData[$key]['control_name']) ? $templateData[$key]['value'] : "");
-                                    echo '<div>' . '<div class="name box-style" id="InputsWrapper_1' . 1 . '">' .
-                                    '<input type="text" class="textBoxClass" value="' . $textFieldText . '" name="' . $value['caption'] . '" id="' . $key . '"/>' . ' ' . '<label>' . $value['caption'] . '</label>' . '<br>' . '</div>' . '</div>';
-                                    break;
-                                case "CheckBox":
-                                    $check = ((in_array($value['caption'], $checkBoxes)) ? 1 : 0);
-                                    if ($check == 1) {
-                                        echo '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' .
-                                        '<input type="checkbox" class="checkBoxClass"  checked name="' . $value['caption'] . '" id="field_' . 2 . '" value="' . $value['export_value'] . '"/>' . ' ' . '<label>' . $value['caption'] . '</label>' . '</p>' . '</div>';
-                                    } else {
-                                        echo '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' .
-                                        '<input type="checkbox" class="checkBoxClass" name="' . $value['caption'] . '" id="field_' . 2 . '" value="' . $value['export_value'] . '"/>' . ' ' . '<label>' . $value['caption'] . '</label>' . '</p>' . '</div>';
-                                    }
+    switch ($value['control_type']) {
+        case "TextField":
+            $textFieldText = ((!empty($templateData[$key]['value']) && $value['caption'] == $templateData[$key]['control_name']) ? $templateData[$key]['value'] : "");
+            echo '<div>' . '<div class="name box-style" id="InputsWrapper_1' . 1 . '">' .
+            '<input type="text" class="textBoxClass" value="' . $textFieldText . '" name="' . $value['caption'] . '" id="' . $key . '"/>' . ' ' . '<label>' . $value['caption'] . '</label>' . '<br>' . '</div>' . '</div>';
+            break;
+        case "CheckBox":
+            $check = ((in_array($value['caption'], $checkBoxes)) ? 1 : 0);
+            if ($check == 1) {
+                echo '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' .
+                '<input type="checkbox" class="checkBoxClass"  checked name="' . $value['caption'] . '" id="field_' . 2 . '" value="' . $value['export_value'] . '"/>' . ' ' . '<label>' . $value['caption'] . '</label>' . '</p>' . '</div>';
+            } else {
+                echo '<div class="checkbox box-style" id="InputsWrapper_3_' . 2 . '">' . '<p class="checkbox_child" id="para' . 2 . '">' .
+                '<input type="checkbox" class="checkBoxClass" name="' . $value['caption'] . '" id="field_' . 2 . '" value="' . $value['export_value'] . '"/>' . ' ' . '<label>' . $value['caption'] . '</label>' . '</p>' . '</div>';
+            }
 
-                                    break;
-                                case "Combobox":
-                                    $selectIndex = array_search($value['caption'], $checkBoxes);
+            break;
+        case "Combobox":
+            $selectIndex = array_search($value['caption'], $checkBoxes);
 //                                    $captionMatching = (in_array($value['caption'], $checkBoxes));
-                                    $list = json_decode($value['list_value']);
-                                    echo '<div class="nameCombo box-style" id="InputsWrapper_1' . 1 . '">' .
-                                    '<select class="selectBox" name="' . $value['caption'] . '" style="width:180px;height:30px" id=' . $key . '>';
-                                    foreach ($list as $option) {
+            $list = json_decode($value['list_value']);
+            echo '<div class="nameCombo box-style" id="InputsWrapper_1' . 1 . '">' .
+            '<select class="selectBox" name="' . $value['caption'] . '" style="width:180px;height:30px" id=' . $key . '>';
+            foreach ($list as $option) {
 
-                                        if($controlValues[$selectIndex] == $option) {
-                                            echo "<option selected value=" . $option . ">" . $option . "</option>";
-                                        } else {
-                                            echo "<option value=" . $option . ">" . $option . "</option>";
-                                        }
-                                    }
-                                    echo "</select>" . ' ' . '<label>' . $value['caption'] . '</label>' . '<br>' . '</div>';
-                            }
-                        }
-                        if (count($rows) > 0) {
-                            echo '<input type="submit" style="margin-top:20px" id="submitbutton" value="submit" name="submit" />';
-                        }
+                if ($controlValues[$selectIndex] == $option) {
+                    echo "<option selected value=" . $option . ">" . $option . "</option>";
+                } else {
+                    echo "<option value=" . $option . ">" . $option . "</option>";
+                }
+            }
+            echo "</select>" . ' ' . '<label>' . $value['caption'] . '</label>' . '<br>' . '</div>';
+    }
+}
+if (count($rows) > 0) {
+    echo '<input type="submit" style="margin-top:20px" id="submitbutton" value="submit" name="submit" />';
+}
 
 //                        include_once 'response.php';
 //                        foreach ($response as $key => $value) {
@@ -133,7 +164,7 @@ if (mysqli_connect_errno()) {
 //                        if (count($response) > 0) {
 //                            echo '<input type="submit" id="submitbutton" value="submit" name="submit" />';
 //                        }
-                        ?>
+?>
 
                     </div>
                 </form>
@@ -477,7 +508,7 @@ foreach ($response as $key => $value) {
 </script>
 <style>
     #header{
-        background-color:#40B1ED;
+        background-color:#28414e;
         height:60px
     }
     .maindiv{
